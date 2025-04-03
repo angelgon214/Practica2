@@ -7,7 +7,7 @@ const winston = require('winston');
 require('dotenv').config();
 const PORT = 5001;
 
-const serviceAccount = require("./configs/serviceAccountKey.json");
+const serviceAccount = JSON.parse(process.env.serviceAccountKey);
 
 if (!admin.apps.length) { 
     admin.initializeApp({ 
