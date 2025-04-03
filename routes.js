@@ -89,36 +89,6 @@ router.post("/login", async (req, res) => {
     }
 });
 
-router.post('/alt-login', async (req, res) => {
-    const { email } = req.body;
-
-    if (!email) {
-        return res.status(400).json({ statusCode: 400, message: "Complete el correo electrónico." });
-    }
-
-    try {
-        const userSnapshot = await db.collection("users").where("email", "==", email).get();
-
-        if (userSnapshot.empty) {
-            return res.status(401).json({ statusCode: 401, message: "Correo no registrado." });
-        }
-
-        const user = userSnapshot.docs[0].data();
-
-        if (user.mfaSecret) {
-            const otpAuthUrl = `otpauth://totp/MiApp:${email}?secret=${user.mfaSecret}&issuer=MiApp`;
-            const qrCodeUrl = await qrcode.toDataURL(otpAuthUrl);
-            return res.json({ requiresMFA: true, qrCodeUrl });
-        }
-
-        return res.status(400).json({ statusCode: 400, message: "Usuario no tiene MFA habilitado." });
-
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ statusCode: 500, message: "Error interno al iniciar sesión." });
-    }
-}); 
-
 router.post('/verify-otp', async (req, res) => {
     const { email, token } = req.body;
 
