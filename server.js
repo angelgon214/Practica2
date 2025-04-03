@@ -23,7 +23,7 @@ const server = express();
 
 server.use(
     cors({
-        origin: 'http://localhost:3001',
+        origin: 'https://proyecto-final2-mu.vercel.app',
         credentials: true,
     })
 );
