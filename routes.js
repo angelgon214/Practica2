@@ -281,4 +281,99 @@ router.get('/getInfo', (req, res) => {
     });
 });
 
+
+router.post('/forgot-password', async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({ statusCode: 400, message: 'Correo electrónico requerido.' });
+  }
+
+  try {
+    const userRef = db.collection('users').doc(email);
+    const userDoc = await userRef.get();
+
+    if (!userDoc.exists) {
+      return res.status(404).json({ statusCode: 404, message: 'Usuario no encontrado.' });
+    }
+
+    const userData = userDoc.data();
+
+    if (!userData.mfaSecret) {
+      return res.status(400).json({ statusCode: 400, message: 'El codigo para restablecer la contraseña no está habilitado para este usuario.' });
+    }
+
+    res.json({ success: true, message: 'Ingresa el código para continuar.' });
+  } catch (error) {
+    console.error('Error en forgot-password:', error);
+    res.status(500).json({ statusCode: 500, message: 'Error interno al procesar la solicitud.' });
+  }
+});
+
+router.post('/verify-otp-reset', async (req, res) => {
+  const { email, otp } = req.body;
+
+  if (!email || !otp) {
+    return res.status(400).json({ statusCode: 400, message: 'Correo y código requeridos.' });
+  }
+
+  try {
+    const userRef = db.collection('users').doc(email);
+    const userDoc = await userRef.get();
+
+    if (!userDoc.exists) {
+      return res.status(404).json({ statusCode: 404, message: 'Usuario no encontrado.' });
+    }
+
+    const userData = userDoc.data();
+
+    if (!userData.mfaSecret) {
+      return res.status(400).json({ statusCode: 400, message: 'MFA no está habilitado.' });
+    }
+
+    const isValid = speakeasy.totp.verify({
+      secret: userData.mfaSecret,
+      encoding: 'base32',
+      token: otp,
+      window: 1,
+    });
+
+    if (!isValid) {
+      return res.status(401).json({ statusCode: 401, message: 'Código incorrecto.' });
+    }
+
+    res.json({ success: true, message: 'Código válido. Ingresa la nueva contraseña.' });
+  } catch (error) {
+    console.error('Error en verify-otp-reset:', error);
+    res.status(500).json({ statusCode: 500, message: 'Error interno al verificar el código.' });
+  }
+});
+
+router.post('/reset-password', async (req, res) => {
+  const { email, newPassword } = req.body;
+
+  if (!email || !newPassword) {
+    return res.status(400).json({ statusCode: 400, message: 'Correo y nueva contraseña requeridos.' });
+  }
+
+  try {
+    const userRef = db.collection('users').doc(email);
+    const userDoc = await userRef.get();
+
+    if (!userDoc.exists) {
+      return res.status(404).json({ statusCode: 404, message: 'Usuario no encontrado.' });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await userRef.update({
+      password: hashedPassword,
+    });
+
+    res.json({ success: true, message: 'Contraseña actualizada correctamente.' });
+  } catch (error) {
+    console.error('Error en reset-password:', error);
+    res.status(500).json({ statusCode: 500, message: 'Error interno al restablecer la contraseña.' });
+  }
+});
+
 module.exports = router;

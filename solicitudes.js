@@ -1,6 +1,6 @@
 const axios = require('axios');
 
-const API_URL = "http://localhost:5001/api/register";
+const API_URL = "https://practica2-i59e.onrender.com/api/register";
 
 
 const registerUser = async (username, email, password) => {
@@ -32,7 +32,7 @@ const registerUser = async (username, email, password) => {
 
 
 const simulateRegistrations = async () => {
-  for (let i = 110; i < 250; i++) {
+  for (let i = 500; i < 600; i++) {
     const username = `user${i}`;
     const email = `user${i}@example.com`;
     const password = "password123";
