@@ -7,7 +7,8 @@ const winston = require('winston');
 require('dotenv').config();
 const PORT = 5001;
 
-const serviceAccount = JSON.parse(process.env.serviceAccountKey);
+//const serviceAccount = JSON.parse(process.env.serviceAccountKey);
+const serviceAccount = require("./configs/serviceAccountKey.json");
 
 if (!admin.apps.length) { 
     admin.initializeApp({ 
@@ -23,7 +24,7 @@ const server = express();
 
 server.use(
     cors({
-        origin: 'https://proyecto-final2-mu.vercel.app',
+        origin: 'http://localhost:3000',
         credentials: true,
     })
 );

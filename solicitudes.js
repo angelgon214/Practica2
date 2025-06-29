@@ -1,6 +1,6 @@
 const axios = require('axios');
 
-const API_URL = "https://practica2-i59e.onrender.com/api/register";
+const API_URL = "http://localhost:3000/api/register";
 
 
 const registerUser = async (username, email, password) => {
