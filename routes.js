@@ -7,8 +7,7 @@ const router = express.Router();
 const db = admin.firestore();
 const speakeasy = require('speakeasy');
 const qrcode = require('qrcode');
-const JWT_SECRET = process.env.JWT_SECRET || "Uteq";
-
+const JWT_SECRET = process.env.JWT_SECRET ||"Uteq";
 console.debug('Using JWT secret: ' + JWT_SECRET);
 
 const transporter = nodemailer.createTransport({
